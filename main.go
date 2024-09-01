@@ -9,6 +9,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/WhaleShip/BucketBot/db/postgres"
 )
 
 var botToken string = ""
@@ -122,6 +124,19 @@ func main() {
 		return
 	}
 	botToken = config.Bot.Token
+
+	_, err = postgres.ConnectPostgres(postgres.Config{
+		Host:     "db",
+		Port:     "5432",
+		Username: "user",
+		Password: "pass",
+		DBName:   "buckets",
+		SSLMode:  "disable",
+	})
+
+	if err != nil {
+		log.Fatalf("db connection fail: %s", err.Error())
+	}
 
 	http.HandleFunc(config.Webhook.Path, webhookHandler)
 

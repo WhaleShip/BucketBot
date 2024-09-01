@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  bucket-app:
+    build: ./
+    command: ./bucket-app
+    ports:
+      - 8080
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: telebot_postgres
+    image: postgres:14
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+      - "5436:5432"
+    volumes:
+      - ./db/init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
