@@ -82,7 +82,7 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error while decoding update", err)
 		return
 	}
-	handleMessage(update)
+	go handleMessage(update)
 }
 
 func setWebhook(botToken, webhookURL string) error {
