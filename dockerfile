@@ -6,4 +6,4 @@ ENV GOPATH=/
 COPY ./ ./
 
 RUN go mod download
-RUN go build -o bucket-app ./main.go
+RUN go build -o bucket-app ./cmd/app/main.go
