@@ -3,8 +3,8 @@ package massagehandlers
 import (
 	"strings"
 
-	api "github.com/WhaleShip/BucketBot/api/models"
 	"github.com/WhaleShip/BucketBot/api/router"
+	api "github.com/WhaleShip/BucketBot/dto"
 )
 
 func HandleMessage(update api.Update) {

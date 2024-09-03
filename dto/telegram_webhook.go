@@ -1,4 +1,4 @@
-package api
+package dto
 
 type Update struct {
 	UpdateID int     `json:"update_id"`

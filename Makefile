@@ -8,6 +8,7 @@ ENV_VARS = \
     POSTGRES_PORT=5432
 
 env:
+	@$(eval SHELL:=/bin/bash)
 	@printf "%s\n" $(ENV_VARS) > $(ENV_FILE)
 	@echo "$(ENV_FILE) file created"
 

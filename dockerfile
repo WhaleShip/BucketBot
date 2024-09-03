@@ -5,5 +5,7 @@ ENV GOPATH=/
 
 COPY ./ ./
 
+EXPOSE 8080
+
 RUN go mod download
 RUN go build -o bucket-app ./cmd/app/main.go

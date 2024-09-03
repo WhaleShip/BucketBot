@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	api "github.com/WhaleShip/BucketBot/api/models"
+	api "github.com/WhaleShip/BucketBot/dto"
 	massagehandlers "github.com/WhaleShip/BucketBot/internal/massage_handlers"
 )
 

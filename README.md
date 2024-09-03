@@ -7,13 +7,15 @@ sudo docker build -t bucket-app .
 sudo docker run -p 8080:8080  bucket-app
 ```
 
-
+```bash
+make env
+```
 
 ## Запуск на локальной машине
 
 ### 1. запустить ngrok
 ```commandline
-ngrok http 8080
+ngrok http 8080 # 8081 для виндовс
 ```
 
 ### 2. запустить приложение
