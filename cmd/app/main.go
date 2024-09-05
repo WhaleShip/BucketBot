@@ -10,27 +10,22 @@ import (
 	"github.com/WhaleShip/BucketBot/config"
 	"github.com/WhaleShip/BucketBot/internal/database"
 	bot_init "github.com/WhaleShip/BucketBot/internal/init"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
 	cfg, err := config.LoadJsonConfig("config/config.json")
 	if err != nil {
 		fmt.Println("Error loading config: ", err)
 		return
 	}
 
-	_, err = database.ConnectPostgres(database.Config{
-		Host:     "db",
-		Port:     "5432",
-		Username: "user",
-		Password: "pass",
-		DBName:   "buckets",
-		SSLMode:  "disable",
-	})
-
-	if err != nil {
-		log.Fatal("db connection fail: ", err.Error())
-	}
+	_, _ = database.GetInitializedDb()
 
 	http.HandleFunc(cfg.Webhook.Path, handler.WebhookHandler)
 

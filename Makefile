@@ -5,7 +5,8 @@ ENV_VARS = \
     POSTGRES_USER=user \
     POSTGRES_PASSWORD=pass \
     POSTGRES_HOST=db \
-    POSTGRES_PORT=5432
+    POSTGRES_PORT=5432 \
+	SSL_MODE=disable
 
 env:
 	@$(eval SHELL:=/bin/bash)

@@ -4,14 +4,9 @@ CREATE TABLE Notes (
     text VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Users (
-    user_id INTEGER PRIMARY KEY,
-);
-
-CREATE TABLE users_notes (
+CREATE TABLE UserNotes (
     user_id INTEGER,
     note_id INTEGER,
     PRIMARY KEY (user_id, note_id),
-    FOREIGN KEY (user_id) REFERENCES Users (id),
     FOREIGN KEY (note_id) REFERENCES Notes (id)
 );
