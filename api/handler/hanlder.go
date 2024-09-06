@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	api "github.com/WhaleShip/BucketBot/dto"
-	massagehandlers "github.com/WhaleShip/BucketBot/internal/massage_handlers"
+	massagehandlers "github.com/WhaleShip/BucketBot/internal/dispatcher"
 )
 
 func WebhookHandler(w http.ResponseWriter, r *http.Request) {
@@ -15,5 +15,6 @@ func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error while decoding update", err)
 		return
 	}
-	go massagehandlers.HandleMessage(update)
+
+	massagehandlers.HandleMessage(update)
 }

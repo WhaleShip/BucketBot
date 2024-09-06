@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,7 +20,7 @@ func main() {
 
 	cfg, err := config.LoadJsonConfig("config/config.json")
 	if err != nil {
-		fmt.Println("Error loading config: ", err)
+		log.Fatal("Error loading config: ", err)
 		return
 	}
 
@@ -30,7 +29,7 @@ func main() {
 	http.HandleFunc(cfg.Webhook.Path, handler.WebhookHandler)
 
 	if err := bot_init.SetWebhook(cfg.Webhook.Host + cfg.Webhook.Path); err != nil {
-		fmt.Println("Error setting webhook: ", err)
+		log.Fatal("Error setting webhook: ", err)
 		return
 	}
 

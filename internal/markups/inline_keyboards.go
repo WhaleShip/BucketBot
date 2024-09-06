@@ -11,3 +11,11 @@ func GetNotesKeyboard() dto.InlineKeyboardMarkup {
 		},
 	}
 }
+
+var (
+	GoBackKeyboard = dto.InlineKeyboardMarkup{
+		InlineKeyboard: [][]dto.InlineKeyboardButton{
+			{{Text: "к заметкам", CallbackData: "get_notes"}},
+		},
+	}
+)
