@@ -1,18 +1,45 @@
 package state
 
-import "sync"
-
-const (
-	NewNoteState = iota + 1
+import (
+	"log"
+	"sync"
 )
 
-var UserStates sync.Map
+var instance *UserState
 
-func SetState(userID int, state int) {
-	UserStates.Store(userID, state)
+func InitializeStateMachine() {
+	instance = &UserState{
+		userData: make(map[int]int),
+	}
+	log.Println("States initialized")
 }
 
-func GetState(userID int) (int, bool) {
-	val, ok := UserStates.Load(userID)
-	return val.(int), ok
+type UserStateInterface interface {
+	Set(userID int, value int)
+	Get(userID int) (int, bool)
+	Delete(userID int)
+}
+
+type UserState struct {
+	mu       sync.Mutex
+	userData map[int]int
+}
+
+func SetUserState(userID int, value int) {
+	instance.mu.Lock()
+	defer instance.mu.Unlock()
+	instance.userData[userID] = value
+}
+
+func GetUserState(userID int) (int, bool) {
+	instance.mu.Lock()
+	defer instance.mu.Unlock()
+	value, exists := instance.userData[userID]
+	return value, exists
+}
+
+func Delete(userID int) {
+	instance.mu.Lock()
+	defer instance.mu.Unlock()
+	delete(instance.userData, userID)
 }

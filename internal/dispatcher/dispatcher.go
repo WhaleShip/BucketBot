@@ -12,8 +12,8 @@ import (
 func directCallback(update dto.Update) {
 	if update.CallbackQuery.Data == "create_note" {
 		handleNewNoteCallback(update)
-	} else {
-		log.Print("Error: nknown Callback recieved")
+	} else if update.CallbackQuery.Data == "get_notes" {
+		handleBackButton(update)
 	}
 }
 
@@ -23,10 +23,10 @@ func directMessage(update dto.Update) {
 
 	if strings.HasPrefix(messageText, "/start") {
 		handleStart(update)
-	} else if value, ok := state.GetState(update.Message.Chat.ID); ok && value == state.NewNoteState {
+	} else if value, ok := state.GetUserState(update.Message.Chat.ID); ok && value == state.NewNoteState {
 		log.Printf("done")
 	} else {
-		router.SendMessage(chatID, messageText, nil)
+		router.SendMessage(chatID, messageText, dto.InlineKeyboardMarkup{})
 	}
 }
 

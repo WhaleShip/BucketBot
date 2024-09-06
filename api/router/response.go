@@ -9,7 +9,6 @@ import (
 
 	"github.com/WhaleShip/BucketBot/config"
 	"github.com/WhaleShip/BucketBot/dto"
-	"github.com/WhaleShip/BucketBot/internal/markups"
 )
 
 func sendUpdate(url string, updateBody any) error {
@@ -31,20 +30,20 @@ func sendUpdate(url string, updateBody any) error {
 	return err
 }
 
-func SendMessage(chatID int, text string, keyboard *dto.InlineKeyboardMarkup) error {
+func SendMessage(chatID int, text string, keyboard dto.InlineKeyboardMarkup) error {
 	cfg := config.GetConfig()
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", cfg.Bot.Token)
 
-	message := dto.ResponseMessage{Chat_id: chatID, Text: text, Markup: *keyboard}
+	message := dto.ResponseMessage{Chat_id: chatID, Text: text, Markup: keyboard}
 	err := sendUpdate(url, message)
 	return err
 }
 
-func CallbackEditMessage(chatID int, messageID int, newText string) error {
+func CallbackEditMessage(chatID int, messageID int, newText string, NewMarkup dto.InlineKeyboardMarkup) error {
 	cfg := config.GetConfig()
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/editMessageText", cfg.Bot.Token)
 
-	newMessage := dto.ResponseMessage{Chat_id: chatID, Text: newText, Markup: markups.GoBackKeyboard}
+	newMessage := dto.ResponseMessage{Chat_id: chatID, Text: newText, Markup: NewMarkup}
 	update := dto.ResponseEditMessage{ResponseMessage: &newMessage, Message_id: int64(messageID)}
 	err := sendUpdate(url, update)
 	return err

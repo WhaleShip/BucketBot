@@ -9,6 +9,7 @@ import (
 	"github.com/WhaleShip/BucketBot/config"
 	"github.com/WhaleShip/BucketBot/internal/database"
 	bot_init "github.com/WhaleShip/BucketBot/internal/init"
+	"github.com/WhaleShip/BucketBot/internal/state"
 	"github.com/joho/godotenv"
 )
 
@@ -23,6 +24,8 @@ func main() {
 		log.Fatal("Error loading config: ", err)
 		return
 	}
+
+	state.InitializeStateMachine()
 
 	_, _ = database.GetInitializedDb()
 
