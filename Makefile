@@ -16,6 +16,7 @@ env:
 	@echo "$(ENV_FILE) file created"
 
 run:
+	@chmod +x scripts/pgbouncer/entrypoint.sh
 	@docker compose up --build -d
 
 off:

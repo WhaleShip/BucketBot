@@ -1,14 +1,6 @@
 #!/bin/sh
 set -e
 
-# Присвоим переменные окружения
-DB_USER=${DB_USER}
-DB_PASSWORD=${DB_PASSWORD}
-DB_NAME=${DB_NAME}
-DB_HOST=${DB_HOST}
-DB_PORT=${DB_PORT} 
-PGBOUNCER_PORT=${PGBOUNCER_PORT}
-
 cat <<EOF > /etc/pgbouncer/userlist.txt
 "${POSTGRES_USER}" "${POSTGRES_PASSWORD}"
 EOF
