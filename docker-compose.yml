@@ -12,17 +12,16 @@ services:
 
   pgbouncer:
     container_name: telebot_pgbouncer
-    image: edoburu/pgbouncer:latest
+    build:
+      context: .
+      dockerfile: build/pgbouncer-dockerfile
     restart: always
     env_file:
       - ./.env
     ports:
       - "6432:6432"
-    volumes:
-      - ./scripts/pgbouncer/entrypoint.sh:/docker-entrypoint.sh
     depends_on:
       - db
-    entrypoint: ["/docker-entrypoint.sh"] 
 
   db:
     container_name: telebot_postgres
