@@ -1,29 +1,22 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"log"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/jackc/pgx/v5"
 )
 
-type Config struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	DBName   string
-	SSLMode  string
-}
+func ConnectPostgres(cfg Config) (*pgx.Conn, error) {
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DBName, cfg.SSLMode)
 
-func ConnectPostgres(cfg Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=%s",
-		cfg.Username, cfg.Password, cfg.DBName, cfg.Host, cfg.Port, cfg.SSLMode)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	conn, err := pgx.Connect(context.Background(), dsn)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to connect to database: %w", err)
 	}
-	log.Println("DB connected")
-	return db, nil
+
+	log.Println("DB connected via PgBouncer")
+	return conn, nil
 }

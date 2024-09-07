@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/WhaleShip/BucketBot/config"
+	config "github.com/WhaleShip/BucketBot/config/app"
 	"github.com/WhaleShip/BucketBot/dto"
 )
 

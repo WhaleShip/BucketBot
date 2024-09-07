@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 
 	"github.com/WhaleShip/BucketBot/api/handler"
-	"github.com/WhaleShip/BucketBot/config"
+	config "github.com/WhaleShip/BucketBot/config/app"
 	"github.com/WhaleShip/BucketBot/internal/database"
 	bot_init "github.com/WhaleShip/BucketBot/internal/init"
 	"github.com/WhaleShip/BucketBot/internal/state"
@@ -19,7 +23,7 @@ func main() {
 		log.Fatalf("Error loading .env file")
 	}
 
-	cfg, err := config.LoadJsonConfig("config/config.json")
+	cfg, err := config.LoadJsonConfig("config/app/app_config.json")
 	if err != nil {
 		log.Fatal("Error loading config: ", err)
 		return
@@ -27,7 +31,11 @@ func main() {
 
 	state.InitializeStateMachine()
 
-	_, _ = database.GetInitializedDb()
+	conn, err := database.GetInitializedDb()
+	if err != nil {
+		log.Fatal("Error connection DB: ", err)
+	}
+	defer conn.Close(context.Background())
 
 	http.HandleFunc(cfg.Webhook.Path, handler.WebhookHandler)
 
@@ -37,7 +45,12 @@ func main() {
 	}
 
 	log.Printf("Starting server on port %d", cfg.Webapp.Port)
-	if err := http.ListenAndServe(":"+strconv.Itoa(cfg.Webapp.Port), nil); err != nil {
-		log.Fatal("Error on start up: ", err)
-	}
+	go func() {
+		if err := http.ListenAndServe(":"+strconv.Itoa(cfg.Webapp.Port), nil); err != nil {
+			log.Fatal("Error on start up: ", err)
+		}
+	}()
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	<-stop
 }

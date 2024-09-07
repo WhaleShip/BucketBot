@@ -6,7 +6,9 @@ ENV_VARS = \
     POSTGRES_PASSWORD=pass \
     POSTGRES_HOST=db \
     POSTGRES_PORT=5432 \
-	SSL_MODE=disable
+	SSL_MODE=disable \
+	PGBOUNCER_HOST=telebot_pgbouncer \
+	PGBOUNCER_PORT=6432
 
 env:
 	@$(eval SHELL:=/bin/bash)

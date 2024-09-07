@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/WhaleShip/BucketBot/config"
+	config "github.com/WhaleShip/BucketBot/config/app"
 )
 
 func SetWebhook(webhookURL string) error {
