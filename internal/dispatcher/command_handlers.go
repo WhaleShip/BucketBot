@@ -1,7 +1,7 @@
 package dispatcher
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/WhaleShip/BucketBot/api/router"
 	"github.com/WhaleShip/BucketBot/assets/markups"
@@ -10,13 +10,14 @@ import (
 	"github.com/WhaleShip/BucketBot/internal/state"
 )
 
-func handleStart(update dto.Update) {
+func handleStart(update dto.Update) error {
 	markup := markups.GetNotesKeyboard()
 	err := router.SendMessage(update.Message.Chat.ID, "Привет!\n"+texts.MainText, markup)
 
 	if err != nil {
-		log.Print("Error sending message: ", err)
+		return fmt.Errorf("error sending message: %w", err)
 	} else {
 		state.SetUserState(update.Message.Chat.ID, state.NoState)
 	}
+	return nil
 }

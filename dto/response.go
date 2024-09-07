@@ -1,9 +1,9 @@
 package dto
 
 type ResponseMessage struct {
-	Chat_id int                  `json:"chat_id"`
-	Text    string               `json:"text"`
-	Markup  InlineKeyboardMarkup `json:"reply_markup"`
+	Chat_id int                   `json:"chat_id"`
+	Text    string                `json:"text"`
+	Markup  *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
 }
 
 type ResponseEditMessage struct {

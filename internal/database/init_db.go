@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -38,6 +39,11 @@ func GetInitializedDb() (*pgx.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = conn.Ping(context.Background())
+	if err != nil {
+		return nil, err
+	}
 
+	log.Println("DB ping success")
 	return conn, nil
 }

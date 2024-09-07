@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 
@@ -12,10 +13,12 @@ import (
 )
 
 func sendUpdate(url string, updateBody any) error {
+
 	body, err := json.Marshal(updateBody)
 	if err != nil {
 		return err
 	}
+	log.Println(string(body))
 	resp, err := http.Post(url, "application/json", strings.NewReader(string(body)))
 	if err != nil {
 		return err
@@ -30,21 +33,25 @@ func sendUpdate(url string, updateBody any) error {
 	return err
 }
 
-func SendMessage(chatID int, text string, keyboard dto.InlineKeyboardMarkup) error {
+func SendMessage(chatID int, text string, keyboard *dto.InlineKeyboardMarkup) error {
 	cfg := config.GetConfig()
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", cfg.Bot.Token)
 
-	message := dto.ResponseMessage{Chat_id: chatID, Text: text, Markup: keyboard}
+	message := &dto.ResponseMessage{Chat_id: chatID, Text: text, Markup: keyboard}
 	err := sendUpdate(url, message)
+	if err != nil {
+		log.Print("error sending message: ", err)
+	}
+
 	return err
 }
 
-func CallbackEditMessage(chatID int, messageID int, newText string, NewMarkup dto.InlineKeyboardMarkup) error {
+func CallbackEditMessage(chatID int, messageID int, newText string, newMarkup *dto.InlineKeyboardMarkup) error {
 	cfg := config.GetConfig()
 	url := fmt.Sprintf("https://api.telegram.org/bot%s/editMessageText", cfg.Bot.Token)
 
-	newMessage := dto.ResponseMessage{Chat_id: chatID, Text: newText, Markup: NewMarkup}
-	update := dto.ResponseEditMessage{ResponseMessage: &newMessage, Message_id: int64(messageID)}
+	newMessage := &dto.ResponseMessage{Chat_id: chatID, Text: newText, Markup: newMarkup}
+	update := &dto.ResponseEditMessage{ResponseMessage: newMessage, Message_id: int64(messageID)}
 	err := sendUpdate(url, update)
 	return err
 }

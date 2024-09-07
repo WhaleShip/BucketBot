@@ -14,8 +14,15 @@ import (
 	"github.com/WhaleShip/BucketBot/internal/database"
 	bot_init "github.com/WhaleShip/BucketBot/internal/init"
 	"github.com/WhaleShip/BucketBot/internal/state"
+	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 )
+
+func HandlerWithDbConnection(session *pgx.Conn, handler func(*pgx.Conn, http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		handler(session, w, r)
+	}
+}
 
 func main() {
 	err := godotenv.Load()
@@ -31,13 +38,13 @@ func main() {
 
 	state.InitializeStateMachine()
 
-	conn, err := database.GetInitializedDb()
+	session, err := database.GetInitializedDb()
 	if err != nil {
 		log.Fatal("Error connection DB: ", err)
 	}
-	defer conn.Close(context.Background())
+	defer session.Close(context.Background())
 
-	http.HandleFunc(cfg.Webhook.Path, handler.WebhookHandler)
+	http.HandleFunc(cfg.Webhook.Path, HandlerWithDbConnection(session, handler.WebhookHandler))
 
 	if err := bot_init.SetWebhook(cfg.Webhook.Host + cfg.Webhook.Path); err != nil {
 		log.Fatal("Error setting webhook: ", err)

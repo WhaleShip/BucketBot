@@ -1,9 +1,9 @@
 package models
 
 type Note struct {
-	ID   uint   `gorm:"primaryKey;column:user_id"`
-	Name string `gorm:"column:name"`
-	Text string `gorm:"column:text"`
+	ID   uint   `db:"id"`
+	Name string `db:"name"`
+	Text string `db:"text"`
 }
 
 func (Note) TableName() string {
@@ -11,7 +11,7 @@ func (Note) TableName() string {
 }
 
 type UserNotes struct {
-	UserID uint `gorm:"primaryKey;column:user_id"`
-	NoteID uint `gorm:"primaryKey;column:note_id"`
-	Note   Note `gorm:"foreignKey:NoteID;references:ID"`
+	UserID uint
+	NoteID uint
+	Note   Note
 }

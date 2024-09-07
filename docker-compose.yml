@@ -10,7 +10,7 @@ services:
       db:
         condition: service_healthy
 
-  pgbouncer:
+  telebot_pgbouncer:
     container_name: telebot_pgbouncer
     build:
       context: .
