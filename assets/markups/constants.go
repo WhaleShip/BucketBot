@@ -1,7 +1,9 @@
 package markups
 
 const (
-	GetNoteListCallback = "get_note_list"
-	GetNoteCallback     = "get_note"
-	CreateNoteCallback  = "create_note"
+	GetNoteListCallback string = "get_note_list"
+	GetNoteCallback     string = "get_note"
+	CreateNoteCallback  string = "create_note"
+	NoPageCallback      string = "no_page"
+	NotesPerScreenCount int    = 6
 )

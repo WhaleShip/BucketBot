@@ -2,6 +2,7 @@ package dispatcher
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 
@@ -21,6 +22,9 @@ func directCallback(session *pgx.Conn, update *dto.Update) error {
 		err = handleGetNoteListCallback(session, update)
 	} else if strings.HasPrefix(callbackQueryText, markups.GetNoteCallback) {
 		err = handleGetNoteCallback(session, update)
+	} else if callbackQueryText == markups.NoPageCallback {
+	} else {
+		err = fmt.Errorf("unknown callback recieved: %s", callbackQueryText)
 	}
 
 	return err

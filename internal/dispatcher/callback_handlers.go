@@ -15,8 +15,6 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-const notesPerScreenCount int = 6
-
 func handleNewNoteCallback(update *dto.Update) error {
 	if update.CallbackQuery.From == nil {
 		return errors.New("error with callback format: no information about message")
@@ -48,13 +46,13 @@ func handleGetNoteListCallback(session *pgx.Conn, update *dto.Update) error {
 		return fmt.Errorf("error reading offset in callback data: %s", update.CallbackQuery.Data)
 	}
 
-	notes, err := database.GetSomeUserNotes(session, user.ID, notesPerScreenCount, offset)
+	notes, err := database.GetSomeUserNotes(session, user.ID, markups.NotesPerScreenCount, offset)
 	if err != nil {
 		return err
 	}
 
 	err = router.CallbackEditMessage(update.CallbackQuery.Message.Chat.ID,
-		update.CallbackQuery.Message.MessageID, texts.MainText, markups.GetNotesKeyboard(notes))
+		update.CallbackQuery.Message.MessageID, texts.MainText, markups.GetNotesKeyboard(notes, offset))
 	state.SetUserState(update.CallbackQuery.From.ID, state.NoState)
 
 	if err != nil {
@@ -78,10 +76,9 @@ func handleGetNoteCallback(session *pgx.Conn, update *dto.Update) error {
 		return fmt.Errorf("error reading noteID in callback data: %s", update.CallbackQuery.Data)
 	}
 
-	note, err := database.GetNoteByID(session, noteID)
+	note, err := database.GetNoteByIDForOwner(session, noteID, user.ID)
 	if err != nil {
 		return fmt.Errorf("error getting note: %s", update.CallbackQuery.Data)
-
 	}
 
 	err = router.CallbackEditMessage(update.CallbackQuery.Message.Chat.ID,

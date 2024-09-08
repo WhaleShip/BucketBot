@@ -7,12 +7,20 @@ import (
 	"github.com/WhaleShip/BucketBot/internal/database/models"
 )
 
-func GetNotesKeyboard(notes []models.Note) *dto.InlineKeyboardMarkup {
+func GetNotesKeyboard(notes []models.Note, offset int) *dto.InlineKeyboardMarkup {
+	var prevPageCallbackData string
 	raw := 1
+	if offset-NotesPerScreenCount < 0 {
+		prevPageCallbackData = NoPageCallback
+	} else {
+		prevPageCallbackData = GetNoteListCallback + fmt.Sprintf(" %d", offset-NotesPerScreenCount)
+	}
+
+	nextPageCallbackData := GetNoteListCallback + fmt.Sprintf(" %d", offset+NotesPerScreenCount)
 	resultKeyboard := &dto.InlineKeyboardMarkup{
 		InlineKeyboard: [][]*dto.InlineKeyboardButton{
-			{{Text: "📝 создать заметку", CallbackData: "create_note"}},
-			{{Text: "<", CallbackData: GetNoteListCallback}, {Text: ">", CallbackData: GetNoteListCallback}},
+			{{Text: "📝 создать заметку", CallbackData: CreateNoteCallback}},
+			{{Text: "<", CallbackData: prevPageCallbackData}, {Text: ">", CallbackData: nextPageCallbackData}},
 		},
 	}
 

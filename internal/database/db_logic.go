@@ -74,14 +74,21 @@ func GetSomeUserNotes(conn *pgx.Conn, userID, limit, offset int) ([]models.Note,
 	return notes, nil
 }
 
-func GetNoteByID(session *pgx.Conn, noteID int) (*models.Note, error) {
-	query := `SELECT id, name, text FROM Notes WHERE id = $1`
-	row := session.QueryRow(context.Background(), query, noteID)
+func GetNoteByIDForOwner(session *pgx.Conn, noteID, requesterID int) (*models.Note, error) {
+	query :=
+		`SELECT UserNotes.user_id, Notes.id, Notes.name, Notes.text FROM UserNotes
+	INNER JOIN Notes ON Notes.id = UserNotes.note_id
+	WHERE note_id = $1 AND user_id = $2`
+	row := session.QueryRow(context.Background(), query, noteID, requesterID)
 
+	var ownerID int
 	var note models.Note
-	err := row.Scan(&note.ID, &note.Name, &note.Text)
+	err := row.Scan(&ownerID, &note.ID, &note.Name, &note.Text)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get note: %v", err)
+	}
+	if ownerID != requesterID {
+		return nil, fmt.Errorf("requester and owner id are not equal. requesterID=%d, ownerID=%d", requesterID, ownerID)
 	}
 
 	return &note, nil

@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/WhaleShip/BucketBot/api/handler"
+	"github.com/WhaleShip/BucketBot/api/router"
 	config "github.com/WhaleShip/BucketBot/config/app"
 	"github.com/WhaleShip/BucketBot/internal/database"
 	bot_init "github.com/WhaleShip/BucketBot/internal/init"
@@ -50,6 +51,15 @@ func main() {
 		log.Fatal("Error setting webhook: ", err)
 		return
 	}
+	defer func() {
+		err = router.DeleteWebhook()
+		if err != nil {
+			log.Println("error deleting webhook: ", err)
+		} else {
+			log.Println("Webhook deleted successfuly!")
+		}
+
+	}()
 
 	log.Printf("Starting server on port %d", cfg.Webapp.Port)
 	go func() {

@@ -19,12 +19,12 @@ func handleStart(session *pgx.Conn, update *dto.Update) error {
 		return errors.New("error with callback format: no information about message")
 	}
 
-	notes, err := database.GetSomeUserNotes(session, chat.ID, notesPerScreenCount, 0)
+	notes, err := database.GetSomeUserNotes(session, chat.ID, markups.NotesPerScreenCount, 0)
 	if err != nil {
 		return fmt.Errorf("error GettingNotes: %w", err)
 	}
 
-	markup := markups.GetNotesKeyboard(notes)
+	markup := markups.GetNotesKeyboard(notes, 0)
 	err = router.SendMessage(update.Message.Chat.ID, "Привет!\n"+texts.MainText, markup)
 
 	if err != nil {
