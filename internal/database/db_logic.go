@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/WhaleShip/BucketBot/internal/database/models"
@@ -47,31 +46,43 @@ func AddNewNote(session *pgx.Conn, noteText string, userID int) error {
 	return nil
 }
 
-func GetNotesByUserID(conn *pgx.Conn, userID int) ([]models.Note, error) {
-	query := `
-	 SELECT n.id, n.text, n.name
-	 FROM UserNotes un
-	 INNER JOIN Notes n ON n.id = un.note_id
-	 WHERE un.user_id = $1`
-
-	rows, err := conn.Query(context.Background(), query, userID)
+func GetSomeUserNotes(conn *pgx.Conn, userID, limit, offset int) ([]models.Note, error) {
+	rows, err := conn.Query(context.Background(), `
+        SELECT n.id, n.name, n.text
+        FROM Notes n
+        JOIN UserNotes un ON n.id = un.note_id
+        WHERE un.user_id = $1
+        LIMIT $2 OFFSET $3
+    `, userID, limit, offset)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute query: %w", err)
+		return nil, err
 	}
 	defer rows.Close()
 
-	var notes []models.Note
+	notes := []models.Note{}
 	for rows.Next() {
 		var note models.Note
 		if err := rows.Scan(&note.ID, &note.Name, &note.Text); err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
+			return nil, err
 		}
 		notes = append(notes, note)
 	}
 
 	if rows.Err() != nil {
-		return nil, fmt.Errorf("failed to iterate over rows: %w", rows.Err())
+		return nil, rows.Err()
 	}
-	log.Println(userID)
 	return notes, nil
+}
+
+func GetNoteByID(session *pgx.Conn, noteID int) (*models.Note, error) {
+	query := `SELECT id, name, text FROM Notes WHERE id = $1`
+	row := session.QueryRow(context.Background(), query, noteID)
+
+	var note models.Note
+	err := row.Scan(&note.ID, &note.Name, &note.Text)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get note: %v", err)
+	}
+
+	return &note, nil
 }

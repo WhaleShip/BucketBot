@@ -9,7 +9,7 @@ type Update struct {
 type Message struct {
 	MessageID int    `json:"message_id"`
 	Text      string `json:"text"`
-	Chat      Chat   `json:"chat"`
+	Chat      *Chat  `json:"chat"`
 }
 
 type CallbackQuery struct {

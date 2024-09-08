@@ -18,7 +18,6 @@ func sendUpdate(url string, updateBody any) error {
 	if err != nil {
 		return err
 	}
-	log.Println(string(body))
 	resp, err := http.Post(url, "application/json", strings.NewReader(string(body)))
 	if err != nil {
 		return err

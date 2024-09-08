@@ -2,64 +2,46 @@ package dispatcher
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 
-	"github.com/WhaleShip/BucketBot/api/router"
+	"github.com/WhaleShip/BucketBot/assets/markups"
 	"github.com/WhaleShip/BucketBot/dto"
-	"github.com/WhaleShip/BucketBot/internal/database"
-	"github.com/WhaleShip/BucketBot/internal/database/models"
 	"github.com/WhaleShip/BucketBot/internal/state"
 	"github.com/jackc/pgx/v5"
 )
 
-func directCallback(session *pgx.Conn, update dto.Update) error {
+func directCallback(session *pgx.Conn, update *dto.Update) error {
 	var err error
+	callbackQueryText := update.CallbackQuery.Data
 
-	if update.CallbackQuery.Data == "create_note" {
+	if callbackQueryText == markups.CreateNoteCallback {
 		err = handleNewNoteCallback(update)
-	} else if update.CallbackQuery.Data == "get_notes" {
-		err = handleBackButton(update)
+	} else if strings.HasPrefix(callbackQueryText, markups.GetNoteListCallback) {
+		err = handleGetNoteListCallback(session, update)
+	} else if strings.HasPrefix(callbackQueryText, markups.GetNoteCallback) {
+		err = handleGetNoteCallback(session, update)
 	}
 
 	return err
 }
 
-func directMessage(session *pgx.Conn, update dto.Update) error {
-	messageText := update.Message.Text
-	userID := update.Message.Chat.ID
+func directMessage(session *pgx.Conn, update *dto.Update) error {
 	var err error
+	messageText := update.Message.Text
 
 	if strings.HasPrefix(messageText, "/start") {
-		err = handleStart(update)
+		err = handleStart(session, update)
 	} else if value, ok := state.GetUserState(update.Message.Chat.ID); ok && value == state.NewNoteState {
 		err = handleNewNote(session, update)
 	} else {
-		n, err := database.GetNotesByUserID(session, userID)
-		if err != nil {
-			log.Println(err)
-		}
-		router.SendMessage(userID, NotesToString(n), nil)
+		handleUselessText(update)
 	}
 
 	return err
 }
-func NotesToString(notes []models.Note) string {
-	var sb strings.Builder
 
-	for _, note := range notes {
-		// Создание строкового представления каждой заметки
-		noteStr := fmt.Sprintf("Note ID: %d, Name: %s, Text: %s\n", note.ID, note.Name, note.Text)
-		// Добавление этой строки в StringBuilder
-		sb.WriteString(noteStr)
-	}
-
-	// Возвращение объединенной строки
-	return sb.String()
-}
-
-func HandleMessage(session *pgx.Conn, update dto.Update) {
+func HandleUpdate(session *pgx.Conn, update *dto.Update) {
 	var err error
 
 	if update.CallbackQuery != nil {
@@ -73,4 +55,5 @@ func HandleMessage(session *pgx.Conn, update dto.Update) {
 	if err != nil {
 		log.Print("error parsing update: ", err)
 	}
+
 }

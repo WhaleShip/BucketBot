@@ -11,6 +11,12 @@ import (
 )
 
 func WebhookHandler(session *pgx.Conn, w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("recovered from panic:", err)
+		}
+	}()
+
 	var update api.Update
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 		log.Println("Error while decoding update", err)
@@ -21,5 +27,5 @@ func WebhookHandler(session *pgx.Conn, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("{}"))
 
-	massagehandlers.HandleMessage(session, update)
+	massagehandlers.HandleUpdate(session, &update)
 }
