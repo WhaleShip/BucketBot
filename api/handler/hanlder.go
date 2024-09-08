@@ -7,7 +7,7 @@ import (
 
 	"github.com/WhaleShip/BucketBot/config"
 	api "github.com/WhaleShip/BucketBot/dto"
-	"github.com/WhaleShip/BucketBot/internal/dispatcher"
+	"github.com/WhaleShip/BucketBot/internal/app"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -33,5 +33,5 @@ func WebhookHandler(session *pgx.Conn, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("{}"))
 
-	dispatcher.HandleUpdate(session, &update)
+	app.HandleUpdate(session, &update)
 }
