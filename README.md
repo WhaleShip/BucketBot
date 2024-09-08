@@ -10,32 +10,32 @@ gets updates with webhooks
 - PgBouncer
 
 
-## local run
-### create .env file
-```comandline
+## Local run
+### Create .env file
+```bash
 make env
 ```
 
-### launch ngrok
-#### linux
-```commandline
+### Launch ngrok
+#### Linux
+```bash
 ngrok http 8080
 ```
 
-#### windows
-```commandline
+#### Windows
+```bash
 ngrok http 8081
 ```
-```commandline
+```bash
 netsh interface portproxy add v4tov4 listenport=8081 listenaddress=0.0.0.0 connectport=8080 connectaddress=127.0.0.1
 ```
 
-### run app
-```commandline
+### Run app
+```bash
 make run
 ```
 
-### shutdown
-```commandline
+### Shutdown
+```bash
 make off
 ```
