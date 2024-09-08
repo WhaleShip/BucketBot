@@ -93,3 +93,31 @@ func GetNoteByIDForOwner(session *pgx.Conn, noteID, requesterID int) (*models.No
 
 	return &note, nil
 }
+
+func DeleteNoteByIDByOwner(session *pgx.Conn, noteID, requesterID int) error {
+	GetNoteByIDForOwner(session, noteID, requesterID)
+
+	ctx := context.Background()
+
+	tx, err := session.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, "DELETE FROM UserNotes WHERE note_id = $1", noteID)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx, "DELETE FROM Notes WHERE id = $1", noteID)
+	if err != nil {
+		return err
+	}
+
+	if err = tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -35,6 +35,16 @@ func GetNotesKeyboard(notes []models.Note, offset int) *dto.InlineKeyboardMarkup
 	return resultKeyboard
 }
 
+func GetNoteGoBackKeyboard(noteID int) *dto.InlineKeyboardMarkup {
+	nodeGoBackKeyboard := &dto.InlineKeyboardMarkup{
+		InlineKeyboard: [][]*dto.InlineKeyboardButton{
+			{{Text: "удалить заметку", CallbackData: DeleteNote + fmt.Sprintf(" %d", noteID)}},
+			{{Text: "к заметкам", CallbackData: GetNoteListCallback + " 0"}},
+		},
+	}
+	return nodeGoBackKeyboard
+}
+
 var (
 	GoBackKeyboard = &dto.InlineKeyboardMarkup{
 		InlineKeyboard: [][]*dto.InlineKeyboardButton{

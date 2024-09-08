@@ -31,21 +31,30 @@ func handleNewNoteCallback(update *dto.Update) error {
 	return nil
 }
 
-func handleGetNoteListCallback(session *pgx.Conn, update *dto.Update) error {
-	user := update.CallbackQuery.From
-	if user == nil {
-		return errors.New("error with callback format: no information about message")
+func safecheckCallbackWithParam(update *dto.Update) (int, error) {
+	if update.CallbackQuery.From == nil {
+		return 0, errors.New("error with callback format: no information about message")
 	}
 
 	fields := strings.Fields(update.CallbackQuery.Data)
 	if len(fields) != 2 {
-		return fmt.Errorf("error reading callback data: %s", update.CallbackQuery.Data)
+		return 0, fmt.Errorf("error reading callback data: %s", update.CallbackQuery.Data)
 	}
-	offset, err := strconv.Atoi(fields[1])
+	param, err := strconv.Atoi(fields[1])
 	if err != nil {
-		return fmt.Errorf("error reading offset in callback data: %s", update.CallbackQuery.Data)
+		return 0, fmt.Errorf("error reading offset in callback data: %s", update.CallbackQuery.Data)
 	}
 
+	return param, nil
+}
+
+func handleGetNoteListCallback(session *pgx.Conn, update *dto.Update) error {
+	offset, err := safecheckCallbackWithParam(update)
+	if err != nil {
+		return err
+	}
+
+	user := update.CallbackQuery.From
 	notes, err := database.GetSomeUserNotes(session, user.ID, markups.NotesPerScreenCount, offset)
 	if err != nil {
 		return err
@@ -53,8 +62,28 @@ func handleGetNoteListCallback(session *pgx.Conn, update *dto.Update) error {
 
 	err = router.EditMessage(update.CallbackQuery.Message.Chat.ID,
 		update.CallbackQuery.Message.MessageID, texts.MainText, markups.GetNotesKeyboard(notes, offset))
+	if err != nil {
+		return fmt.Errorf("error sending callback answer: %w", err)
+	}
 	state.SetUserState(update.CallbackQuery.From.ID, state.NoState)
 
+	return nil
+}
+
+func handleGetNoteCallback(session *pgx.Conn, update *dto.Update) error {
+	noteID, err := safecheckCallbackWithParam(update)
+	if err != nil {
+		return err
+	}
+
+	user := update.CallbackQuery.From
+	note, err := database.GetNoteByIDForOwner(session, noteID, user.ID)
+	if err != nil {
+		return fmt.Errorf("error getting note: %s", update.CallbackQuery.Data)
+	}
+
+	err = router.EditMessage(update.CallbackQuery.Message.Chat.ID,
+		update.CallbackQuery.Message.MessageID, note.Text, markups.GetNoteGoBackKeyboard(noteID))
 	if err != nil {
 		return fmt.Errorf("error sending callback answer: %w", err)
 	}
@@ -62,28 +91,20 @@ func handleGetNoteListCallback(session *pgx.Conn, update *dto.Update) error {
 	return nil
 }
 
-func handleGetNoteCallback(session *pgx.Conn, update *dto.Update) error {
-	user := update.CallbackQuery.From
-	if user == nil {
-		return errors.New("error with callback format: no information about message")
-	}
-	fields := strings.Fields(update.CallbackQuery.Data)
-	if len(fields) != 2 {
-		return fmt.Errorf("error reading callback data: %s", update.CallbackQuery.Data)
-	}
-	noteID, err := strconv.Atoi(fields[1])
+func deleteNoteHandler(session *pgx.Conn, update *dto.Update) error {
+	noteID, err := safecheckCallbackWithParam(update)
 	if err != nil {
-		return fmt.Errorf("error reading noteID in callback data: %s", update.CallbackQuery.Data)
+		return err
 	}
 
-	note, err := database.GetNoteByIDForOwner(session, noteID, user.ID)
+	user := update.CallbackQuery.From
+	err = database.DeleteNoteByIDByOwner(session, noteID, user.ID)
 	if err != nil {
 		return fmt.Errorf("error getting note: %s", update.CallbackQuery.Data)
 	}
 
 	err = router.EditMessage(update.CallbackQuery.Message.Chat.ID,
-		update.CallbackQuery.Message.MessageID, note.Text, markups.GoBackKeyboard)
-
+		update.CallbackQuery.Message.MessageID, texts.NoteDeletedText, markups.GoBackKeyboard)
 	if err != nil {
 		return fmt.Errorf("error sending callback answer: %w", err)
 	}

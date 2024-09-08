@@ -5,5 +5,7 @@ const (
 	GetNoteCallback     string = "get_note"
 	CreateNoteCallback  string = "create_note"
 	NoPageCallback      string = "no_page"
-	NotesPerScreenCount int    = 6
+	DeleteNote          string = "delete_note"
+
+	NotesPerScreenCount int = 6
 )
