@@ -1,29 +1,41 @@
-# GO TELEGRAM BOT
+# BUCKET TELEGRAM BOT
+Telegram bot for saving notes
+special libraries to work with telegramAPI are not used 
+gets updates with webhooks
+
+## Stack
+- Go
+- Docker compose
+- PostgreSQL with [pgx/v5](https://github.com/jackc/pgx)
+- PgBouncer
 
 
-## Запуск через docker
-```commandline
-sudo docker build -t bucket-app .
-sudo docker run -p 8080:8080  bucket-app
-```
-
-```bash
+## local run
+### create .env file
+```comandline
 make env
 ```
 
-## Запуск на локальной машине
-
-### 1. запустить ngrok
+### launch ngrok
+#### linux
 ```commandline
-ngrok http 8080 # 8081 для виндовс
+ngrok http 8080
 ```
 
-### 2. запустить приложение
+#### windows
 ```commandline
-go run main.go
+ngrok http 8081
 ```
-
-### 3. запустить прокси (только для windows)
 ```commandline
 netsh interface portproxy add v4tov4 listenport=8081 listenaddress=0.0.0.0 connectport=8080 connectaddress=127.0.0.1
+```
+
+### run app
+```commandline
+make run
+```
+
+### shutdown
+```commandline
+make off
 ```
