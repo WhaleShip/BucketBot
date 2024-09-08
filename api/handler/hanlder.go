@@ -5,8 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/WhaleShip/BucketBot/config"
 	api "github.com/WhaleShip/BucketBot/dto"
-	massagehandlers "github.com/WhaleShip/BucketBot/internal/dispatcher"
+	"github.com/WhaleShip/BucketBot/internal/dispatcher"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -16,6 +17,11 @@ func WebhookHandler(session *pgx.Conn, w http.ResponseWriter, r *http.Request) {
 			log.Println("recovered from panic:", err)
 		}
 	}()
+
+	if r.Header.Get("X-Telegram-Bot-Api-Secret-Token") != config.GetConfig().Webhook.Secret {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	var update api.Update
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
@@ -27,5 +33,5 @@ func WebhookHandler(session *pgx.Conn, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte("{}"))
 
-	massagehandlers.HandleUpdate(session, &update)
+	dispatcher.HandleUpdate(session, &update)
 }

@@ -2,9 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"os"
-	"sync"
 )
 
 const TelegramAPI = "https://api.telegram.org/bot"
@@ -16,8 +15,9 @@ type Config struct {
 }
 
 type WebhookConf struct {
-	Host string `json:"host"`
-	Path string `json:"path"`
+	Host   string `json:"host"`
+	Path   string `json:"path"`
+	Secret string `json:"secret"`
 }
 
 type BotConf struct {
@@ -31,24 +31,20 @@ type WebappConf struct {
 
 var (
 	config *Config
-	once   sync.Once
 )
 
 func LoadJsonConfig(file string) (*Config, error) {
-	var err error
-	once.Do(func() {
-		file, err := os.Open(file)
-		if err != nil {
-			log.Fatalf("Failed to open config file: %v", err)
-		}
-		defer file.Close()
+	jsonCfg, err := os.Open(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open config file: %v", err)
+	}
+	defer jsonCfg.Close()
 
-		decoder := json.NewDecoder(file)
-		config = &Config{}
-		if err := decoder.Decode(config); err != nil {
-			log.Fatalf("Failed to decode config file: %v", err)
-		}
-	})
+	decoder := json.NewDecoder(jsonCfg)
+	config = &Config{}
+	if err := decoder.Decode(config); err != nil {
+		return nil, fmt.Errorf("failed to decode config file: %v", err)
+	}
 	return config, err
 }
 

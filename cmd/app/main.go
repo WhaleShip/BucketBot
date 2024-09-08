@@ -11,9 +11,8 @@ import (
 
 	"github.com/WhaleShip/BucketBot/api/handler"
 	"github.com/WhaleShip/BucketBot/api/router"
-	config "github.com/WhaleShip/BucketBot/config/app"
+	"github.com/WhaleShip/BucketBot/config"
 	"github.com/WhaleShip/BucketBot/internal/database"
-	bot_init "github.com/WhaleShip/BucketBot/internal/init"
 	"github.com/WhaleShip/BucketBot/internal/state"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
@@ -28,12 +27,12 @@ func HandlerWithDbConnection(session *pgx.Conn, handler func(*pgx.Conn, http.Res
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Fatal("error loading .env file: ", err)
 	}
 
-	cfg, err := config.LoadJsonConfig("config/app/app_config.json")
+	cfg, err := config.LoadJsonConfig("config/app_config.json")
 	if err != nil {
-		log.Fatal("Error loading config: ", err)
+		log.Fatal("error loading config: ", err)
 		return
 	}
 
@@ -41,14 +40,14 @@ func main() {
 
 	session, err := database.GetInitializedDb()
 	if err != nil {
-		log.Fatal("Error connection DB: ", err)
+		log.Fatal("error connection DB: ", err)
 	}
 	defer session.Close(context.Background())
 
 	http.HandleFunc(cfg.Webhook.Path, HandlerWithDbConnection(session, handler.WebhookHandler))
 
-	if err := bot_init.SetWebhook(cfg.Webhook.Host + cfg.Webhook.Path); err != nil {
-		log.Fatal("Error setting webhook: ", err)
+	if err := router.SetWebhook(cfg.Webhook.Host + cfg.Webhook.Path); err != nil {
+		log.Fatal("error setting webhook: ", err)
 		return
 	}
 	defer func() {
@@ -64,7 +63,7 @@ func main() {
 	log.Printf("Starting server on port %d", cfg.Webapp.Port)
 	go func() {
 		if err := http.ListenAndServe(":"+strconv.Itoa(cfg.Webapp.Port), nil); err != nil {
-			log.Fatal("Error on start up: ", err)
+			log.Fatal("error on start up: ", err)
 		}
 	}()
 	stop := make(chan os.Signal, 1)

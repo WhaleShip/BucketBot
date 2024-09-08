@@ -19,7 +19,7 @@ func handleNewNoteCallback(update *dto.Update) error {
 	if update.CallbackQuery.From == nil {
 		return errors.New("error with callback format: no information about message")
 	} else {
-		err := router.CallbackEditMessage(update.CallbackQuery.Message.Chat.ID,
+		err := router.EditMessage(update.CallbackQuery.Message.Chat.ID,
 			update.CallbackQuery.Message.MessageID, "Отправь сообщение, и оно станет новой заметкой!", markups.GoBackKeyboard)
 		state.SetUserState(update.CallbackQuery.From.ID, state.NewNoteState)
 
@@ -51,7 +51,7 @@ func handleGetNoteListCallback(session *pgx.Conn, update *dto.Update) error {
 		return err
 	}
 
-	err = router.CallbackEditMessage(update.CallbackQuery.Message.Chat.ID,
+	err = router.EditMessage(update.CallbackQuery.Message.Chat.ID,
 		update.CallbackQuery.Message.MessageID, texts.MainText, markups.GetNotesKeyboard(notes, offset))
 	state.SetUserState(update.CallbackQuery.From.ID, state.NoState)
 
@@ -81,7 +81,7 @@ func handleGetNoteCallback(session *pgx.Conn, update *dto.Update) error {
 		return fmt.Errorf("error getting note: %s", update.CallbackQuery.Data)
 	}
 
-	err = router.CallbackEditMessage(update.CallbackQuery.Message.Chat.ID,
+	err = router.EditMessage(update.CallbackQuery.Message.Chat.ID,
 		update.CallbackQuery.Message.MessageID, note.Text, markups.GoBackKeyboard)
 
 	if err != nil {

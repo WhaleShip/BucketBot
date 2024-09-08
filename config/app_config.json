@@ -1,7 +1,8 @@
 {
     "webhook": {
         "host": "",
-        "path": "/webhook"
+        "path": "/webhook",
+        "secret": "YourRandomString"
     },
 
     "bot": {

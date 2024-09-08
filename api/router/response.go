@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	config "github.com/WhaleShip/BucketBot/config/app"
+	"github.com/WhaleShip/BucketBot/config"
 	"github.com/WhaleShip/BucketBot/dto"
 )
 
@@ -46,7 +46,7 @@ func SendMessage(chatID int, text string, keyboard *dto.InlineKeyboardMarkup) er
 	return err
 }
 
-func CallbackEditMessage(chatID int, messageID int, newText string, newMarkup *dto.InlineKeyboardMarkup) error {
+func EditMessage(chatID int, messageID int, newText string, newMarkup *dto.InlineKeyboardMarkup) error {
 	editMEssageUrl := "https://api.telegram.org/bot%s/editMessageText"
 
 	cfg := config.GetConfig()
@@ -56,22 +56,4 @@ func CallbackEditMessage(chatID int, messageID int, newText string, newMarkup *d
 	update := &dto.ResponseEditMessage{ResponseMessage: newMessage, Message_id: int64(messageID)}
 	err := sendUpdate(url, update)
 	return err
-}
-
-func DeleteWebhook() error {
-	deleteWebhookURL := "https://api.telegram.org/bot%s/deleteWebhook"
-
-	cfg := config.GetConfig()
-	url := fmt.Sprintf(deleteWebhookURL, cfg.Bot.Token)
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to delete webhook, status code: %d", resp.StatusCode)
-	}
-
-	return nil
 }
