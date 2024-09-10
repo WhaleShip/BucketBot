@@ -22,8 +22,13 @@ make env
 ngrok http 8080
 ```
 
+<<<<<<< HEAD
 #### Windows
 ```bash
+=======
+### Write your ngrok address into [config](./config/app_config) file
+
+>>>>>>> cd5b70a (readme change)
 ngrok http 8081
 ```
 ```bash
