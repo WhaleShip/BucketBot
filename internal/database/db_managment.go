@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/WhaleShip/BucketBot/internal/database/models"
 	"github.com/jackc/pgx/v5"
@@ -15,8 +16,8 @@ func getNoteName(noteText string) string {
 		noteText = noteText[:newlinePos]
 	}
 
-	if len(noteText) >= 8 {
-		return noteText[:6] + "…"
+	if utf8.RuneCountInString(noteText) >= 10 {
+		return string([]rune(noteText)[:7]) + "…"
 	}
 
 	return noteText
